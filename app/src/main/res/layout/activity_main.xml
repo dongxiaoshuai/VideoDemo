@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/video_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <SurfaceView
+            android:id="@+id/surface_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:id="@+id/control_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/surface_view"
+            android:background="@color/control_color"
+            android:orientation="horizontal"
+            android:padding="5dp">
+
+            <ImageButton
+                android:id="@+id/playBtn"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@mipmap/play" />
+
+            <TextView
+                android:id="@+id/curr_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:text="00:00"
+                android:textColor="#fff"
+                android:textSize="16sp" />
+
+            <SeekBar
+                android:id="@+id/seekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/count_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:text="00:00"
+                android:textColor="#fff"
+                android:textSize="16sp" />
+
+            <ImageButton
+                android:id="@+id/screenBtn"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@mipmap/large_screen" />
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/load_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true" />
+    </RelativeLayout>
+
+
+</LinearLayout>
