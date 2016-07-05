@@ -30,6 +30,11 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 
+/**
+ * 创建：dongshuaijun
+ * 日期：2016/7/1
+ * 注释：视屏播放
+ */
 public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback, View.OnClickListener
         , SeekBar.OnSeekBarChangeListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener,
         MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnSeekCompleteListener {
@@ -65,6 +70,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private boolean isFirstLoadVideo = true;
     //是否销毁activity
     private boolean isOnDestroy = false;
+    //是否可见
+    private boolean isPause = false;
     //媒体音量管理
     private AudioManager audioManager;
     //点击纵坐标
@@ -83,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private int currLight;
 
     private static final int HIDE_CONTROL_LAYOUT = -1;
+    //这个地址是我抓的某平台的，我发现这个地址是变化的，所以有可能不能使用，如果不能播放，换个正常的就可以运行了，不要用模拟器运行
     private static final String VIDEO_URL = "http://vod.hcs.cmvideo.cn:8088/699056/20160330/16/2206381358/88401385/gx0308wx07sn_54.mp4.m3u8?msisdn=452046967&sid=2206381358&timestamp=20160702163222&Channel_ID=305300090030000&preview=1&playseek=000000-001000&encrypt=61b1958423d270fb55606bb955f62d3a";
     private Handler handler = new Handler() {
         @Override
@@ -136,8 +144,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             //设置手动设置
             Settings.System.putInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE, Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
             //获取屏幕亮度,获取失败则返回255
-            currLight = Settings.System.getInt(getContentResolver(),
-                    Settings.System.SCREEN_BRIGHTNESS,
+            currLight = android.provider.Settings.System.getInt(getContentResolver(),
+                    android.provider.Settings.System.SCREEN_BRIGHTNESS,
                     255);
             f = currLight / 255f;
         } catch (Settings.SettingNotFoundException e) {
@@ -268,7 +276,13 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public void surfaceCreated(SurfaceHolder holder) {
         Log.e("TAG", "surfaceCreated");
         //等surfaceView创建完成再开始播放视频
-        playUrl(VIDEO_URL);
+        if (!isPause) {
+            playUrl(VIDEO_URL);
+        } else {
+            isPause = false;
+            mediaPlayer.setDisplay(holder);
+            if (isPlay) mediaPlayer.start();
+        }
     }
 
     //surfaceView改变
@@ -407,11 +421,13 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             @Override
             public void run() {
                 while (!isOnDestroy) { //结束线程标示
-                    if (isPlay) {
+
+                    if (isPlay && !isPause) {
                         try {
                             Message message = new Message();
                             message.what = mediaPlayer.getCurrentPosition();
                             handler.sendMessage(message);
+                            Log.e("TAG", "while");
                             Thread.sleep(1000);
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -425,7 +441,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     //播放完成
     @Override
     public void onCompletion(MediaPlayer mp) {
-        Log.e("TAG", "播放完成");
+//        Log.e("TAG", "播放完成");
         playBtn.setBackgroundResource(R.mipmap.play);
         isPlay = false;
         isPlayCom = true;
@@ -439,7 +455,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     //播放出错
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
-        Log.e("TAG", "播放出错");
         isPlay = false;
         return false;
     }
@@ -452,7 +467,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     @Override
     public void onBufferingUpdate(MediaPlayer mp, int percent) {
         Log.e("TAG", "onBufferingUpdate" + ",percent:" + percent);
-
     }
 
     //准备完成
@@ -479,6 +493,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
     @Override
     protected void onDestroy() {
+        Log.e("TAG", "onDestroy");
         isOnDestroy = true;
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.stop();
@@ -497,6 +512,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         } else {
             mediaPlayer.start();
         }
+
     }
 
     //监听返回键 如果是全屏状态则返回竖屏 否则直接返回
@@ -508,4 +524,25 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         }
         return super.onKeyDown(keyCode, event);
     }
+
+    @Override
+    protected void onPause() {
+        Log.e("TAG", "onPause");
+        isPause = true;
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
+        }
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (isPause && isPlay && mHolder.getSurface().isValid()) {
+            isPause = false;
+            mediaPlayer.start();
+        }
+    }
+
 }
+
