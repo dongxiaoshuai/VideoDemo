@@ -6,4 +6,5 @@ surfaceView+mediaPlayer 自定义播放器
 
 演示效果
 -----------------------------------
-![image](https://github.com/dongxiaoshuai/VideoDemo/blob/master/app/src/main/res/drawable/icon.png)   
+![image](https://github.com/dongxiaoshuai/VideoDemo/blob/master/app/src/main/res/drawable/icon1.png)   
+![image](https://github.com/dongxiaoshuai/VideoDemo/blob/master/app/src/main/res/drawable/icon2.png)   
